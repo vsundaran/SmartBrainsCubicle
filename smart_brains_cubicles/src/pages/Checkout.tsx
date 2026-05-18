@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import api from '../services/api';
 import { useAlertConfirm } from '../context/AlertConfirmContext';
@@ -16,7 +16,6 @@ interface CheckoutForm {
 }
 
 const Checkout: React.FC = () => {
-  const navigate = useNavigate();
   const { items, cartTotal, clearCart } = useCart();
   const { showAlert } = useAlertConfirm();
   const [loading, setLoading] = useState<boolean>(false);

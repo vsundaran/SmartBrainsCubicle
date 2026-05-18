@@ -1045,7 +1045,7 @@ const AdminDashboard: React.FC = () => {
                               onClick={() => {
                                 setCurrentProduct(prev => prev ? {
                                   ...prev,
-                                  images: prev.images.filter((_, i) => i !== idx)
+                                  images: (prev.images || []).filter((_, i) => i !== idx)
                                 } : null);
                               }}
                               className="absolute top-1.5 right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow transition-colors"
