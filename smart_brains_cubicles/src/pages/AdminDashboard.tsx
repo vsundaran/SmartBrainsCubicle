@@ -82,7 +82,7 @@ const AdminDashboard: React.FC = () => {
   const [currentProduct, setCurrentProduct] = useState<Partial<Product> | null>(
     null,
   );
-  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [selectedFilesList, setSelectedFilesList] = useState<File[]>([]);
   const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -171,6 +171,22 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleDeleteOrder = async (id: string) => {
+    const confirmed = await showConfirm(
+      "Delete Order",
+      "Are you sure you want to delete this order? This action cannot be undone.",
+    );
+    if (confirmed) {
+      try {
+        await api.delete(`/orders/${id}`);
+        fetchOrders();
+      } catch (error) {
+        console.error("Error deleting order", error);
+        await showAlert("Error", "Failed to delete order.");
+      }
+    }
+  };
+
   const handleOpenModal = (product?: Product) => {
     if (product) {
       setCurrentProduct(product);
@@ -189,7 +205,7 @@ const AdminDashboard: React.FC = () => {
         videoUrl: "",
       });
     }
-    setSelectedFiles(null);
+    setSelectedFilesList([]);
     setSelectedVideoFile(null);
     setIsModalOpen(true);
   };
@@ -197,7 +213,7 @@ const AdminDashboard: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setCurrentProduct(null);
-    setSelectedFiles(null);
+    setSelectedFilesList([]);
     setSelectedVideoFile(null);
   };
 
@@ -283,10 +299,10 @@ const AdminDashboard: React.FC = () => {
       });
     }
 
-    if (selectedFiles) {
-      for (let i = 0; i < selectedFiles.length; i++) {
-        formData.append("images", selectedFiles[i]);
-      }
+    if (selectedFilesList && selectedFilesList.length > 0) {
+      selectedFilesList.forEach((file) => {
+        formData.append("images", file);
+      });
     }
 
     if (selectedVideoFile) {
@@ -462,7 +478,7 @@ const AdminDashboard: React.FC = () => {
                                 {product.images && product.images.length > 0 ? (
                                   <img
                                     className="h-12 w-12 object-cover"
-                                    src={`http://localhost:5001${product.images[0]}`}
+                                    src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5001${product.images[0]}`}
                                     alt=""
                                   />
                                 ) : (
@@ -699,22 +715,32 @@ const AdminDashboard: React.FC = () => {
                                   size={16}
                                 />
                               ) : (
-                                <select
-                                  value={order.status}
-                                  onChange={(e) =>
-                                    handleUpdateOrderStatus(
-                                      order._id,
-                                      e.target.value as Order["status"],
-                                    )
-                                  }
-                                  className="border border-gray-300 rounded-xl px-3 py-1.5 font-bold text-xs focus:ring-1 focus:ring-primary focus:border-primary bg-white outline-none cursor-pointer text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                  <option value="Initiated">Initiated</option>
-                                  <option value="Confirmed">Confirmed</option>
-                                  <option value="Dispatched">Dispatched</option>
-                                  <option value="Received">Received</option>
-                                  <option value="Returned">Returned</option>
-                                </select>
+                                <div className="flex items-center space-x-2">
+                                  <select
+                                    value={order.status}
+                                    onChange={(e) =>
+                                      handleUpdateOrderStatus(
+                                        order._id,
+                                        e.target.value as Order["status"],
+                                      )
+                                    }
+                                    className="border border-gray-300 rounded-xl px-3 py-1.5 font-bold text-xs focus:ring-1 focus:ring-primary focus:border-primary bg-white outline-none cursor-pointer text-gray-700 hover:bg-gray-50 transition-colors"
+                                  >
+                                    <option value="Initiated">Initiated</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Dispatched">Dispatched</option>
+                                    <option value="Received">Received</option>
+                                    <option value="Returned">Returned</option>
+                                  </select>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteOrder(order._id)}
+                                    className="bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 p-2 rounded-xl border border-red-100 transition-colors flex items-center justify-center shadow-sm"
+                                    title="Delete Order"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
                               )}
                             </div>
                           </td>
@@ -991,17 +1017,77 @@ const AdminDashboard: React.FC = () => {
                     type="file"
                     multiple
                     accept="image/*"
-                    onChange={(e) => setSelectedFiles(e.target.files)}
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        const newFiles = Array.from(e.target.files);
+                        setSelectedFilesList((prev) => [...prev, ...newFiles]);
+                        e.target.value = ""; // Clear file input value to allow re-selection
+                      }
+                    }}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer"
                   />
-                  {currentProduct.images &&
-                    currentProduct.images.length > 0 &&
-                    !selectedFiles && (
-                      <p className="mt-2 text-sm text-gray-500 font-medium">
-                        Currently has {currentProduct.images.length} images
-                        uploaded.
-                      </p>
-                    )}
+
+                  {/* Existing Product Images (If Editing) */}
+                  {currentProduct && currentProduct.images && currentProduct.images.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Existing Images</p>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        {currentProduct.images.map((imgUrl, idx) => (
+                          <div key={idx} className="relative group rounded-xl overflow-hidden border border-gray-200 aspect-square bg-gray-50 flex items-center justify-center">
+                            <img
+                              src={imgUrl.startsWith('http') ? imgUrl : `http://localhost:5001${imgUrl}`}
+                              alt={`Existing ${idx}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCurrentProduct(prev => prev ? {
+                                  ...prev,
+                                  images: prev.images.filter((_, i) => i !== idx)
+                                } : null);
+                              }}
+                              className="absolute top-1.5 right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow transition-colors"
+                              title="Delete Image"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Newly Selected Product Images */}
+                  {selectedFilesList.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">New Images to Upload</p>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        {selectedFilesList.map((file, idx) => {
+                          const previewUrl = URL.createObjectURL(file);
+                          return (
+                            <div key={idx} className="relative group rounded-xl overflow-hidden border border-gray-200 aspect-square bg-gray-50 flex items-center justify-center">
+                              <img
+                                src={previewUrl}
+                                alt={`Selected ${idx}`}
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedFilesList((prev) => prev.filter((_, i) => i !== idx));
+                                }}
+                                className="absolute top-1.5 right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow transition-colors"
+                                title="Remove Image"
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">

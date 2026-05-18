@@ -77,21 +77,40 @@ const updateOrderStatus = async (req, res) => {
     }
 
     const order = await Order.findById(req.params.id);
-
-    if (order) {
-      order.status = status;
-      const updatedOrder = await order.save();
-      res.json({ success: true, message: `Order status updated to ${status}`, data: updatedOrder });
-    } else {
-      res.status(404).json({ success: false, message: 'Order not found' });
-    }
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
-
-module.exports = {
-  createOrder,
-  getOrders,
-  updateOrderStatus
-};
+ 
+     if (order) {
+       order.status = status;
+       const updatedOrder = await order.save();
+       res.json({ success: true, message: `Order status updated to ${status}`, data: updatedOrder });
+     } else {
+       res.status(404).json({ success: false, message: 'Order not found' });
+     }
+   } catch (error) {
+     res.status(400).json({ success: false, message: error.message });
+   }
+ };
+ 
+ // @desc    Delete order
+ // @route   DELETE /api/orders/:id
+ // @access  Admin Only
+ const deleteOrder = async (req, res) => {
+   try {
+     const order = await Order.findById(req.params.id);
+ 
+     if (order) {
+       await order.deleteOne();
+       res.json({ success: true, message: 'Order removed' });
+     } else {
+       res.status(404).json({ success: false, message: 'Order not found' });
+     }
+   } catch (error) {
+     res.status(500).json({ success: false, message: error.message });
+   }
+ };
+ 
+ module.exports = {
+   createOrder,
+   getOrders,
+   updateOrderStatus,
+   deleteOrder
+ };

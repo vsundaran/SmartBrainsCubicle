@@ -97,12 +97,12 @@ const createProduct = async (req, res) => {
     } = req.body;
 
     const images = req.files && req.files['images'] 
-      ? req.files['images'].map(file => `/uploads/${file.filename}`) 
+      ? req.files['images'].map(file => file.url) 
       : [];
 
     let finalVideoUrl = videoUrl || '';
     if (req.files && req.files['video'] && req.files['video'].length > 0) {
-      finalVideoUrl = `/uploads/${req.files['video'][0].filename}`;
+      finalVideoUrl = req.files['video'][0].url;
     }
 
     const product = new Product({
@@ -148,7 +148,7 @@ const updateProduct = async (req, res) => {
 
       // Add new uploaded images
       if (req.files && req.files['images'] && req.files['images'].length > 0) {
-        const newImages = req.files['images'].map(file => `/uploads/${file.filename}`);
+        const newImages = req.files['images'].map(file => file.url);
         finalImages = [...finalImages, ...newImages];
       }
 
@@ -156,7 +156,7 @@ const updateProduct = async (req, res) => {
 
       // Update video URL (either uploaded file or contractual input link)
       if (req.files && req.files['video'] && req.files['video'].length > 0) {
-        product.videoUrl = `/uploads/${req.files['video'][0].filename}`;
+        product.videoUrl = req.files['video'][0].url;
       } else if (videoUrl !== undefined) {
         product.videoUrl = videoUrl;
       }

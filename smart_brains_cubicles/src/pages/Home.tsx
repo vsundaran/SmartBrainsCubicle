@@ -184,7 +184,7 @@ const Home: React.FC = () => {
                     <img
                       src={
                         product.images && product.images.length > 0
-                          ? `http://localhost:5001${product.images[0]}`
+                          ? (product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5001${product.images[0]}`)
                           : "https://via.placeholder.com/400x400?text=No+Image"
                       }
                       alt={product.name}

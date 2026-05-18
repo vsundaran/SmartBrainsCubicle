@@ -46,7 +46,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       const image = product.images && product.images.length > 0 
-        ? `http://localhost:5001${product.images[0]}` 
+        ? (product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5001${product.images[0]}`) 
         : 'https://via.placeholder.com/300x300?text=No+Image';
 
       return [...prev, {
