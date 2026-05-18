@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { useAlertConfirm } from "../context/AlertConfirmContext";
+import { API_URL } from "../env";
 import {
   Plus,
   Edit2,
@@ -478,7 +479,7 @@ const AdminDashboard: React.FC = () => {
                                 {product.images && product.images.length > 0 ? (
                                   <img
                                     className="h-12 w-12 object-cover"
-                                    src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5001${product.images[0]}`}
+                                    src={product.images[0].startsWith('http') ? product.images[0] : `${API_URL}${product.images[0]}`}
                                     alt=""
                                   />
                                 ) : (
@@ -1035,7 +1036,7 @@ const AdminDashboard: React.FC = () => {
                         {currentProduct.images.map((imgUrl, idx) => (
                           <div key={idx} className="relative group rounded-xl overflow-hidden border border-gray-200 aspect-square bg-gray-50 flex items-center justify-center">
                             <img
-                              src={imgUrl.startsWith('http') ? imgUrl : `http://localhost:5001${imgUrl}`}
+                              src={imgUrl.startsWith('http') ? imgUrl : `${API_URL}${imgUrl}`}
                               alt={`Existing ${idx}`}
                               className="w-full h-full object-cover"
                             />

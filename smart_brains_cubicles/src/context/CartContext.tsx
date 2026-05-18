@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { API_URL } from '../env';
 
 export interface CartItem {
   _id: string;
@@ -46,7 +47,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       const image = product.images && product.images.length > 0 
-        ? (product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5001${product.images[0]}`) 
+        ? (product.images[0].startsWith('http') ? product.images[0] : `${API_URL}${product.images[0]}`) 
         : 'https://via.placeholder.com/300x300?text=No+Image';
 
       return [...prev, {

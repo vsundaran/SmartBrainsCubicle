@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { API_URL } from '../env';
 
 interface Product {
   _id: string;
@@ -21,7 +22,7 @@ const ProductCard: React.FC<Props> = ({ product }) => {
   const { addToCart } = useCart();
   
   const imageUrl = product.images.length > 0 
-    ? (product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5001${product.images[0]}`)
+    ? (product.images[0].startsWith('http') ? product.images[0] : `${API_URL}${product.images[0]}`)
     : 'https://via.placeholder.com/300x300?text=No+Image';
 
   const formatAge = (months: number) => {

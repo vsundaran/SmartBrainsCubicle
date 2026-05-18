@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { ShoppingCart, ChevronLeft, Loader2, CheckCircle2 } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { API_URL } from "../env";
 
 interface Product {
   _id: string;
@@ -106,7 +107,7 @@ const ProductDetail: React.FC = () => {
               <img
                 src={
                   mainImage
-                    ? (mainImage.startsWith('http') ? mainImage : `http://localhost:5001${mainImage}`)
+                    ? (mainImage.startsWith('http') ? mainImage : `${API_URL}${mainImage}`)
                     : "https://via.placeholder.com/600x600?text=No+Image"
                 }
                 alt={product.name}
@@ -122,7 +123,7 @@ const ProductDetail: React.FC = () => {
                     className={`flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border-2 transition-all ${mainImage === img ? "border-primary shadow-md scale-105" : "border-transparent opacity-70 hover:opacity-100"}`}
                   >
                     <img
-                      src={img.startsWith('http') ? img : `http://localhost:5001${img}`}
+                      src={img.startsWith('http') ? img : `${API_URL}${img}`}
                       alt={`Thumbnail ${idx}`}
                       className="w-full h-full object-cover"
                     />
@@ -149,7 +150,7 @@ const ProductDetail: React.FC = () => {
                     ></iframe>
                   ) : (
                     <video
-                      src={product.videoUrl.startsWith('http') ? product.videoUrl : `http://localhost:5001${product.videoUrl}`}
+                      src={product.videoUrl.startsWith('http') ? product.videoUrl : `${API_URL}${product.videoUrl}`}
                       controls
                       playsInline
                       className="w-full h-full object-cover"

@@ -4,6 +4,7 @@ import AgeFilter from "../components/AgeFilter";
 import { BookOpen, ShieldCheck, Heart, ArrowRight, ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import api from "../services/api";
 import { useCart } from "../context/CartContext";
+import { API_URL } from "../env";
 
 interface Product {
   _id: string;
@@ -184,7 +185,7 @@ const Home: React.FC = () => {
                     <img
                       src={
                         product.images && product.images.length > 0
-                          ? (product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5001${product.images[0]}`)
+                          ? (product.images[0].startsWith('http') ? product.images[0] : `${API_URL}${product.images[0]}`)
                           : "https://via.placeholder.com/400x400?text=No+Image"
                       }
                       alt={product.name}
