@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch server.js",
     "start": "node server.js",
-    "zip": "zip -r app.zip . -x \"node_modules/*\" \".git/*\""
+    "zip": "zip -r app.zip . -x \".git/*\""
   },
   "keywords": [],
   "author": "",
